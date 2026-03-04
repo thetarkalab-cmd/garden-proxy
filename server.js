@@ -8,15 +8,15 @@ app.use(express.json({ limit: '10mb' }));
 
 app.post('/chat', async (req, res) => {
   try {
-    const key = process.env.GEMINI_API_KEY;
-    const response = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + key,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(req.body)
-      }
-    );
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify(req.body)
+    });
     const data = await response.json();
     res.json(data);
   } catch (err) {
@@ -24,9 +24,6 @@ app.post('/chat', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => {
-  const key = process.env.GEMINI_API_KEY;
-  res.send('Garden proxy running. Key present: ' + !!key + '. Key length: ' + (key ? key.length : 0));
-});
+app.get('/', (req, res) => res.send('Garden proxy running'));
 
 app.listen(process.env.PORT || 8000);
