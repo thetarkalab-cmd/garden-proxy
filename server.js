@@ -9,10 +9,8 @@ app.use(express.json({ limit: '10mb' }));
 app.post('/chat', async (req, res) => {
   try {
     const key = process.env.GEMINI_API_KEY;
-    console.log('Key length:', key ? key.length : 'MISSING');
-    console.log('Key start:', key ? key.substring(0, 8) : 'MISSING');
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + key,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -28,12 +26,7 @@ app.post('/chat', async (req, res) => {
 
 app.get('/', (req, res) => {
   const key = process.env.GEMINI_API_KEY;
-  res.send(`Garden proxy running. Key present: ${!!key}. Key length: ${key ? key.length : 0}`);
+  res.send('Garden proxy running. Key present: ' + !!key + '. Key length: ' + (key ? key.length : 0));
 });
 
 app.listen(process.env.PORT || 8000);
-```
-
-Commit, trigger build, then open your proxy root URL:
-```
-https://ready-leigha-thetarkalab-c90f529e.koyeb.app/
