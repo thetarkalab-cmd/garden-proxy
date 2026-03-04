@@ -26,4 +26,4 @@ app.post('/chat', async (req, res) => {
 
 app.get('/', (req, res) => res.send('Garden proxy running'));
 
-app.listen(process.env.PORT || 3000);
+app.listen(process.env.PORT || 8000);
