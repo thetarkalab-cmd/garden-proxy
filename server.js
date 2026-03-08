@@ -4,7 +4,7 @@ const fetch = require('node-fetch');
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
 
 const SUPABASE_URL = 'https://symuoxlnfyrneogmjkvv.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
