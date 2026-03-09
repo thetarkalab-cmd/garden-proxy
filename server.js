@@ -196,6 +196,72 @@ app.get('/counts', async (req, res) => {
   }
 });
 
+
+// ── Get all plants ──
+app.get('/plants', async (req, res) => {
+  try {
+    const plants = await supabase('garden_plants?select=*&order=container_type,id');
+    res.json(plants);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Add a new plant ──
+app.post('/plant/add', async (req, res) => {
+  try {
+    const { id, name, species, container_type, location, status, emoji, care_notes, metrics_type, quantity } = req.body;
+    const result = await supabase('garden_plants', 'POST', {
+      id, name, species, container_type, location, status, emoji, care_notes,
+      metrics_type: metrics_type || (container_type === 'soil' ? 'soil' : 'water'),
+      quantity: quantity || 1
+    });
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Update a plant ──
+app.post('/plant/update', async (req, res) => {
+  try {
+    const { id, ...fields } = req.body;
+    if (!id) return res.status(400).json({ error: 'id required' });
+    const allowed = ['name','species','container_type','location','status','emoji','care_notes','metrics_type','quantity','container_label'];
+    const update = {};
+    allowed.forEach(k => { if (fields[k] !== undefined) update[k] = fields[k]; });
+    update.updated_at = new Date().toISOString();
+    await fetch(`${SUPABASE_URL}/rest/v1/garden_plants?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(update)
+    });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Delete a plant ──
+app.delete('/plant/:id', async (req, res) => {
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/garden_plants?id=eq.${req.params.id}`, {
+      method: 'DELETE',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      }
+    });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/', (req, res) => res.send('Garden proxy running'));
 
 app.listen(process.env.PORT || 8000);
