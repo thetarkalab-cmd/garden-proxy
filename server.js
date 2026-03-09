@@ -183,10 +183,13 @@ app.post('/log/transfer', async (req, res) => {
 // ── Get plant counts ──
 app.get('/counts', async (req, res) => {
   try {
-    const plants = await supabase('garden_plants?select=container_type');
-    const soil = plants.filter(p => p.container_type === 'soil').length;
-    const bottle = plants.filter(p => p.container_type === 'bottle').length;
-    const tube = plants.filter(p => p.container_type === 'test_tube').length;
+    const plants = await supabase('garden_plants?select=container_type,quantity');
+    const sum = (type) => plants
+      .filter(p => p.container_type === type)
+      .reduce((acc, p) => acc + (p.quantity || 1), 0);
+    const soil = sum('soil');
+    const bottle = sum('bottle');
+    const tube = sum('test_tube');
     res.json({ soil, bottle, tube, total: soil + bottle + tube });
   } catch (err) {
     res.status(500).json({ error: err.message });
